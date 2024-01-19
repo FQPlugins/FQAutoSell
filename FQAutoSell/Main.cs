@@ -1,11 +1,4 @@
-﻿using Rocket.Core.Plugins;
-using Rocket.Unturned.Events;
-using SDG.Unturned;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Rocket.Core.Plugins;
 
 namespace FQAutoSell
 {
