@@ -1,15 +1,9 @@
-﻿using fr34kyn01535.Uconomy;
-using Rocket.API;
-using Rocket.Core;
+using fr34kyn01535.Uconomy;
 using Rocket.Unturned.Player;
 using RocketExtensions.Utilities.ShimmyMySherbet.Extensions;
 using SDG.Unturned;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
+using Rocket.Core.Logging;
 
 namespace FQAutoSell.Components
 {
@@ -18,11 +12,13 @@ namespace FQAutoSell.Components
         public bool autoenable = false;
         protected override void Load()
         {
-            Player.Inventory.onInventoryAdded += (byte page, byte index, ItemJar jar) => InventoryAdded(Player, page, index, jar);
+            Player.Inventory.onInventoryAdded += (page, index, jar) => InventoryAdded(Player, page, index, jar);
+
         }
         protected override void Unload()
         {
-            Player.Inventory.onInventoryAdded += (byte page, byte index, ItemJar jar) => InventoryAdded(Player, page, index, jar);
+            Player.Inventory.onInventoryAdded += (page, index, jar) => InventoryAdded(Player, page, index, jar);
+
         }
         private async void InventoryAdded(UnturnedPlayer player, byte page, byte index, ItemJar jar)
         {
@@ -35,7 +31,24 @@ namespace FQAutoSell.Components
 
                 player.Inventory.removeItem(page, index);
 
-                Uconomy.Instance.Database.IncreaseBalance(player.CSteamID.m_SteamID.ToString(), Main.Instance.Configuration.Instance.items.FirstOrDefault(x => x.itemId == jar.item.id).price);
+                if (Uconomy.Instance != null && Uconomy.Instance.Database != null)
+                {
+                    var item = Main.Instance.Configuration.Instance.items.FirstOrDefault(x => x.itemId == jar.item.id);
+
+                    if (item != null)
+                    {
+                        Uconomy.Instance.Database.IncreaseBalance(player.CSteamID.m_SteamID.ToString(), item.price);
+                    }
+                    else
+                    {
+                        Logger.Log("Belirtilen itemId ile eşleşen öğe bulunamadı.");
+                    }
+                }
+                else
+                {
+                    Logger.Log("Uconomy.Instance veya Uconomy.Instance.Database verisi alınamadı.");
+                }
+
             });
 
         }
